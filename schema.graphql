@@ -1,0 +1,93 @@
+scalar DateTime
+
+type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    created: DateTime!
+    category: PhotoCategory!
+    postedBy: User!
+    taggedUsers: [User!]!
+}
+
+enum PhotoCategory {
+    SELFIE
+    PORTRAIT
+    ACTION
+    LANDSCAPE
+    GRAPHIC
+}
+
+# A user who has been authorized by GitHub at least once
+type User {
+
+    # The user's unique GitHub login
+    githubLogin: ID!
+
+    # The user's first and last name
+    name: String
+
+    # A url to the user's GitHub profile photo
+    avatar: String
+
+    # All of the photos posted by this user
+    postedPhotos: [Photo!]!
+
+    # All of the photos in which this user appears
+    inPhotos: [Photo!]!
+
+}
+
+type Query {
+    totalPhotos: Int!
+    allPhotos: [Photo!]!
+    totalUsers: Int!
+    allUsers: [User!]!
+    User(githubLogin: ID!): User!
+    Photo(id: ID!): Photo!
+    me: User
+}
+
+# Input arguments for a new photo
+input PostPhotoInput {
+
+    # name: The name of the new photo
+    name: String!
+
+    # (optional) A brief description of the photo
+    description: String
+
+    # (optional) The category that defines the photo
+    category: PhotoCategory=PORTRAIT
+
+}
+
+type AuthPayload {
+    token: String!
+    user: User!
+}
+
+type Mutation {
+
+    # Adds a new photo
+    #
+    # Arguments
+    # input: The name, description, and category for a new photo
+    postPhoto(input: PostPhotoInput!): Photo!
+
+    githubAuth(code: String!): AuthPayload!
+}
+
+type Subscription {
+    newPhoto: Photo!
+    newUser: User!
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+}
+
+
